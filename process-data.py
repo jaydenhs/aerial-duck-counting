@@ -5,7 +5,7 @@ from PIL import Image
 import json
 from scipy.ndimage import gaussian_filter
 from tqdm import tqdm
-import h5py
+import shutil
 
 # Set device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -19,7 +19,10 @@ image_output_dir = os.path.join(output_dir, "images")
 density_output_dir = os.path.join(output_dir, "gt-density")
 points_output_dir = os.path.join(output_dir, "gt-points")
 
-# Create directories if they don't exist
+# Delete processed-data directory if it exists and create directories
+if os.path.exists(output_dir):
+    shutil.rmtree(output_dir)
+
 os.makedirs(image_output_dir, exist_ok=True)
 os.makedirs(density_output_dir, exist_ok=True)
 os.makedirs(points_output_dir, exist_ok=True)
@@ -36,7 +39,6 @@ with open(annotations_path, 'r') as f:
 class_to_idx = {
     'Adult Male': 0,
     'Adult Female': 1,
-    'Juvenile': 2
 }
 
 # Gaussian kernel to generate density maps
@@ -67,8 +69,8 @@ for idx, annotation in enumerate(tqdm(filtered_annotations, desc="Processing ann
     image = image.resize((1024, 1024))  # Resize all images to 1024x1024
 
     # Create density maps (one per class)
-    density_maps = np.zeros((3, 1024, 1024), dtype=np.float32)
-    points = {'Adult Male': [], 'Adult Female': [], 'Juvenile': []}
+    density_maps = np.zeros((2, 1024, 1024), dtype=np.float32)
+    points = {'Adult Male': [], 'Adult Female': []}
 
     # Extract annotations
     for result in annotation['annotations'][0]['result']:
@@ -85,6 +87,5 @@ for idx, annotation in enumerate(tqdm(filtered_annotations, desc="Processing ann
 
     # Save the processed data
     image.save(os.path.join(image_output_dir, f"{image_file}.png"))
-    with h5py.File(os.path.join(density_output_dir, f"{image_file}.h5"), 'w') as hf:
-        hf.create_dataset('density_maps', data=density_maps)
+    np.save(os.path.join(density_output_dir, f"{image_file}.npy"), density_maps)
     np.save(os.path.join(points_output_dir, f"{image_file}.npy"), points)
