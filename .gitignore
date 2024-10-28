@@ -4,3 +4,5 @@ __pycache__/
 .DS_Store
 .env-duck/
 penguin/
+processed-data/
+checkpoints/
