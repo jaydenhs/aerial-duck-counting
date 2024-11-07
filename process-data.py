@@ -98,13 +98,18 @@ for idx, annotation in enumerate(tqdm(filtered_annotations, desc="Processing ann
             # Check if there are annotations over the minimum threshold
             total_points = sum(len(points_patch[label]) for label in points_patch)
             if total_points >= min_annotations:
+                save_name = f"{image_file}_{i}_{j}"
+
+                if save_name not in ["09dfba85-IMG_4660.JPG_2_3", "d8d096d5-overhead_2.png_2_2"]:
+                    continue
+                
                 # Extract image patch
                 image_patch = image.crop((j * patch_size, i * patch_size, (j + 1) * patch_size, (i + 1) * patch_size))
-                image_patch.save(os.path.join(image_output_dir, f"{image_file}_{i}_{j}.png"))
+                image_patch.save(os.path.join(image_output_dir, f"{save_name}.png"))
 
                 # Extract density map patches
                 density_patch = density_maps[:, i * patch_size:(i + 1) * patch_size, j * patch_size:(j + 1) * patch_size]
-                np.save(os.path.join(density_output_dir, f"{image_file}_{i}_{j}.npy"), density_patch)
+                np.save(os.path.join(density_output_dir, f"{save_name}.npy"), density_patch)
 
                 # Save points patch
-                np.save(os.path.join(points_output_dir, f"{image_file}_{i}_{j}.npy"), points_patch)
+                np.save(os.path.join(points_output_dir, f"{save_name}.npy"), points_patch)

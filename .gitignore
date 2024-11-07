@@ -6,3 +6,5 @@ __pycache__/
 penguin/
 processed-data/
 checkpoints/
+syn_checkpoints/
+synthesized/
