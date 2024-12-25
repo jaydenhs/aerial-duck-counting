@@ -38,7 +38,9 @@ def add_ducks(image, num_ducks, color, min_distance=0):
             
     return positions, bounding_boxes
 
-def synthesize_dataset(output_dir, n_images=100):
+def synthesize_dataset(output_dir, n_images=100, image_size=1024, 
+                       num_male_ducks=(125, 175), num_female_ducks=(125, 175), 
+                       background_color=[26, 32, 37]):
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     os.makedirs(output_dir, exist_ok=True)
@@ -54,11 +56,11 @@ def synthesize_dataset(output_dir, n_images=100):
     annotation_id = 1
 
     for image_id in tqdm(range(n_images), desc=f"Generating {n_images} images"):
-        n_males = randint(125, 175)
-        n_females = randint(125, 175)
+        n_males = randint(*num_male_ducks)
+        n_females = randint(*num_female_ducks)
 
-        image = np.zeros((1024, 1024, 3), dtype=np.uint8)
-        image[:, :] = [26, 32, 37]
+        image = np.zeros((image_size, image_size, 3), dtype=np.uint8)
+        image[:, :] = background_color
         _, male_bboxes = add_ducks(image, n_males, [242, 242, 242])
         _, female_bboxes = add_ducks(image, n_females, [169, 169, 169])
 
@@ -68,8 +70,8 @@ def synthesize_dataset(output_dir, n_images=100):
         coco_annotations["images"].append({
             "id": image_id,
             "file_name": f'synth_{image_id}_M{n_males}_F{n_females}.png',
-            "height": 1024,
-            "width": 1024
+            "height": image_size,
+            "width": image_size
         })
 
         for bbox in male_bboxes:
@@ -98,4 +100,22 @@ def synthesize_dataset(output_dir, n_images=100):
         json.dump(coco_annotations, f, indent=4, default=int)
 
 
-synthesize_dataset('synthesized_combined/sparse')
+# Example usage
+synthesize_dataset(
+    output_dir='synthesized_combined/sparse',
+    n_images=100,
+    image_size=1024,
+    num_male_ducks=(100, 150),
+    num_female_ducks=(100, 150),
+    background_color=[30, 40, 50]
+)
+
+# Example usage
+synthesize_dataset(
+    output_dir='synthesized_combined/dense',
+    n_images=100,
+    image_size=1024,
+    num_male_ducks=(400, 600),
+    num_female_ducks=(400, 600),
+    background_color=[30, 40, 50]
+)
