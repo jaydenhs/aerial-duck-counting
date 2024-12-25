@@ -13,8 +13,8 @@ def add_ducks(image, num_ducks, color, min_distance=0):
     bounding_boxes = []
     for _ in range(num_ducks):
         while True:
-            center_x = randint(0, 512)
-            center_y = randint(0, 512)
+            center_x = randint(0, 1024)
+            center_y = randint(0, 1024)
             if all(np.sqrt((center_x - x) ** 2 + (center_y - y) ** 2) >= min_distance for x, y in positions):
                 positions.append((center_x, center_y))
                 break
@@ -57,7 +57,7 @@ def synthesize_dataset(output_dir, n_images=100):
         n_males = randint(125, 175)
         n_females = randint(125, 175)
 
-        image = np.zeros((512, 512, 3), dtype=np.uint8)
+        image = np.zeros((1024, 1024, 3), dtype=np.uint8)
         image[:, :] = [26, 32, 37]
         _, male_bboxes = add_ducks(image, n_males, [242, 242, 242])
         _, female_bboxes = add_ducks(image, n_females, [169, 169, 169])
@@ -68,8 +68,8 @@ def synthesize_dataset(output_dir, n_images=100):
         coco_annotations["images"].append({
             "id": image_id,
             "file_name": f'synth_{image_id}_M{n_males}_F{n_females}.png',
-            "height": 512,
-            "width": 512
+            "height": 1024,
+            "width": 1024
         })
 
         for bbox in male_bboxes:
@@ -98,4 +98,4 @@ def synthesize_dataset(output_dir, n_images=100):
         json.dump(coco_annotations, f, indent=4, default=int)
 
 
-synthesize_dataset('synthesized')
+synthesize_dataset('synthesized_combined/sparse')
